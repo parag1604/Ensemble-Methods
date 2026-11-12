@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## Data
 
-Scripts 01 and 02 need no data. The others expect the same two CSV files as the Decision-Trees repository, under `./data` (pass other paths with `--car_path`, `--house_path` or `--data_path`):
+Scripts 01 and 02 need no data. The others use the same two small CSV files as the Decision-Trees repository, which are **included** under `./data` (pass other paths with `--car_path`, `--house_path` or `--data_path`):
 
 ```
 data/
@@ -35,11 +35,11 @@ data/
   house.csv   # regression (03, 04 with --task reg, and 05-07)
 ```
 
-**car.csv**: the [UCI Car Evaluation](https://archive.ics.uci.edu/dataset/19/car+evaluation) dataset. Download `car.data` and save it as `data/car.csv` (a header row is optional; columns in the UCI order: buying price, maintenance cost, doors, number of persons, lug_boot, safety, decision). The target is acceptable vs. unacceptable.
+**car.csv**: the [UCI Car Evaluation](https://archive.ics.uci.edu/dataset/19/car+evaluation) dataset. It is included as `data/car.csv` (`5more` doors is written `5`; with the original `car.data` a header row is optional; columns in the UCI order: buying price, maintenance cost, doors, number of persons, lug_boot, safety, decision). The target is acceptable vs. unacceptable.
 
 **No data?** Add `--synthetic` to scripts 03–08 to use numpy-generated stand-ins instead: a car-like classification set (1728 points, 6 ordinal features, a non-linear rule with 10% label noise) and the Friedman #1 regression problem (545 points, 12 features of which 5 matter, Gaussian noise).
 
-**house.csv**: the Kaggle [Housing Prices Dataset](https://www.kaggle.com/datasets/yasserh/housing-prices-dataset) (`Housing.csv`), saved as `data/house.csv`, with the columns `price, area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus`. Prices are standardized with the training statistics, so an RMSE of 1.0 is no better than always predicting the mean price.
+**house.csv**: the Kaggle [Housing Prices Dataset](https://www.kaggle.com/datasets/yasserh/housing-prices-dataset) (`Housing.csv`), included as `data/house.csv`, with the columns `price, area, bedrooms, bathrooms, stories, mainroad, guestroom, basement, hotwaterheating, airconditioning, parking, prefarea, furnishingstatus`. Prices are standardized with the training statistics, so an RMSE of 1.0 is no better than always predicting the mean price.
 
 ## Running
 
@@ -120,29 +120,29 @@ New: the only script that uses library models. It trains our trees, bagging, ran
 
 ## What was run
 
-All scripts were run on a MacBook CPU with `--synthetic` (the car and house CSV files are not on this machine, so no numbers on the real datasets are reported here); each takes 0.5–1.5 s, and 08 takes about 5 s. The CSV code path was also checked on randomly generated files in the same format.
+All scripts were run on a MacBook CPU on the included car.csv and house.csv; each takes under 4 s. Test scores (accuracy on car.csv, standardized RMSE on house.csv):
 
-| script (`--synthetic`) | single tree (test) | ensemble (test) |
+| script | single tree (test) | ensemble (test) |
 |---|---|---|
-| 03 bagging, classification (accuracy) | 0.812 | 0.826 |
-| 03 bagging, regression (RMSE) | 0.669 | 0.569 |
-| 04 random forest, classification (accuracy) | 0.812 | 0.829 |
-| 04 random forest, regression (RMSE) | 0.669 | 0.587 |
-| 05 boosting heuristic (RMSE, depth 3) | 0.753 | 0.530 |
-| 06 AdaBoost.R2 (RMSE, depth 3) | 0.753 | 0.542 |
-| 07 gradient boosting (RMSE, depth 3) | 0.753 | 0.448 |
+| 03 bagging, classification (accuracy) | 0.980 | 0.994 |
+| 03 bagging, regression (RMSE) | 0.844 | 0.641 |
+| 04 random forest, classification (accuracy) | 0.980 | 0.980 |
+| 04 random forest, regression (RMSE) | 0.844 | 0.617 |
+| 05 boosting heuristic (RMSE, depth 3) | 0.762 | 0.689 |
+| 06 AdaBoost.R2 (RMSE, depth 3) | 0.762 | 0.691 |
+| 07 gradient boosting (RMSE, depth 3) | 0.762 | 0.607 |
 
-`08_sklearn_comparison.py --synthetic`:
+`08_sklearn_comparison.py` puts the from-scratch models next to scikit-learn's:
 
 | model | ours | scikit-learn |
 |---|---|---|
-| single tree, depth 8 (accuracy) | 0.812 | 0.812 |
-| bagging, 21 trees (accuracy) | 0.826 | 0.838 |
-| random forest, 21 trees (accuracy) | 0.829 | 0.826 |
-| single tree, depth 8 (RMSE) | 0.669 | 0.702 |
-| bagging, 21 trees (RMSE) | 0.569 | 0.541 |
-| random forest, 21 trees (RMSE) | 0.587 | 0.538 |
-| AdaBoost.R2, 20 trees (RMSE) | 0.542 | 0.530 |
-| gradient boosting, 20 trees (RMSE) | 0.448 | 0.446 |
+| single tree (accuracy) | 0.980 | 0.980 |
+| bagging, 21 trees (accuracy) | 0.994 | 0.988 |
+| random forest, 21 trees (accuracy) | 0.980 | 0.983 |
+| single tree (RMSE) | 0.844 | 0.806 |
+| bagging, 21 trees (RMSE) | 0.641 | 0.646 |
+| random forest, 21 trees (RMSE) | 0.617 | 0.660 |
+| AdaBoost.R2, 20 trees (RMSE) | 0.691 | 0.698 |
+| gradient boosting, 20 trees (RMSE) | 0.607 | 0.607 |
 
-The single trees and gradient boosting fit the **training** set identically to scikit-learn (predictions equal to machine precision); the test scores differ only through tie-breaking: deep in a tree a node has a handful of points, several features separate them equally well, and we keep the first such feature while scikit-learn picks one at random (its own test RMSE ranges from 0.676 to 0.702 over `random_state` 0–5 and 2024). Bagging, random forests and AdaBoost are random, and the two implementations draw different bootstrap samples and feature subsets, so their scores agree only up to that randomness. Our trees are pure numpy, so they are 10–20× slower than scikit-learn's compiled ones, which is still well under a second per ensemble here.
+Gradient boosting matches scikit-learn exactly. The other differences come from randomness (bootstrap samples and feature subsets) and from tie-breaking between equally good splits deep in a tree, where we keep the first such feature and scikit-learn picks one at random. Our numpy trees are 10–20× slower than scikit-learn's compiled ones, which is still under 4 s here. The `--synthetic` stand-in data (see Data) gives the same qualitative picture.

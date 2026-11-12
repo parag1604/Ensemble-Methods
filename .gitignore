@@ -162,7 +162,9 @@ cython_debug/
 #.idea/
 
 # Project-specific
-data/
+data/*
+!data/car.csv
+!data/house.csv
 models/
 checkpoints/
 runs/

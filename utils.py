@@ -35,7 +35,7 @@ def _load_car(path: str) -> Tuple[pd.DataFrame, np.ndarray]:
     level4 = {"vhigh": 4, "high": 3, "med": 2, "low": 1}
     X_df["buying price"] = X_df["buying price"].map(level4)
     X_df["maintenance cost"] = X_df["maintenance cost"].map(level4)
-    X_df["doors"] = X_df["doors"].map({"2": 2, "3": 3, "4": 4, "5more": 5})
+    X_df["doors"] = X_df["doors"].map({"2": 2, "3": 3, "4": 4, "5": 5, "5more": 5})
     X_df["number of persons"] = X_df["number of persons"].map({
         "2": 2,
         "4": 4,
