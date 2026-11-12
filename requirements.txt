@@ -1,5 +1,5 @@
 numpy
 scipy
 pandas
-scikit-learn
 matplotlib
+scikit-learn  # only for 08_sklearn_comparison.py

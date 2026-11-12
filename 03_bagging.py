@@ -10,26 +10,25 @@ What is NEW compared to 01-02
 
 Run: python 03_bagging.py --task clf     (car.csv)
      python 03_bagging.py --task reg     (house.csv)
+     add --synthetic to use generated data instead of the CSV files
 """
 import argparse
 
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
-
-from utils import load_data, standardize_targets, report_classification, report_regression
+from tree import DecisionTreeClassifier, DecisionTreeRegressor
+from utils import get_data, report_classification, report_regression
 from model import RandomForest as RFModel
 
 
 def main(args, max_features=None, name="Bagging") -> None:
     if args.task == "clf":
-        X_train, X_test, y_train, y_test = load_data(args.car_path)
+        X_train, X_test, y_train, y_test = get_data(args, "clf")
         single = DecisionTreeClassifier(criterion=args.criteria, max_depth=args.max_depth,
                                         random_state=args.seed)
         ensemble = RFModel(args.criteria, args.n_estimators, args.max_depth,
                            seed=args.seed, max_features=max_features)
         report = report_classification
     else:
-        X_train, X_test, y_train, y_test = load_data(args.house_path, is_regression=True)
-        y_train, y_test = standardize_targets(y_train, y_test)
+        X_train, X_test, y_train, y_test = get_data(args, "reg")
         single = DecisionTreeRegressor(max_depth=args.max_depth, random_state=args.seed)
         ensemble = RFModel(n_estimators=args.n_estimators, max_depth=args.max_depth,
                            seed=args.seed, is_regression=True, max_features=max_features)
@@ -47,6 +46,8 @@ def get_parser(description: str) -> argparse.ArgumentParser:
     parser.add_argument("--n_estimators", type=int, default=21)
     parser.add_argument("--max_depth", type=int, default=8)
     parser.add_argument("--seed", type=int, default=2024)
+    parser.add_argument("--synthetic", action="store_true",
+                        help="use generated data instead of car.csv / house.csv")
     return parser
 
 

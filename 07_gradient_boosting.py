@@ -18,7 +18,7 @@ import importlib
 
 import numpy as np
 
-from utils import load_data, standardize_targets, rmse
+from utils import get_data, rmse
 from model import GradientBoostingEnsemble
 
 boosting = importlib.import_module("05_boosting")
@@ -34,8 +34,7 @@ if __name__ == "__main__":
     boosting.compare(model, args, "Gradient boosting")
 
     # RMSE after each stage (the model is already fitted by compare)
-    X_train, X_test, y_train, y_test = load_data(args.data_path, is_regression=True)
-    y_train, y_test = standardize_targets(y_train, y_test)
+    X_train, X_test, y_train, y_test = get_data(args, "reg")
     print("trees | train RMSE | test RMSE")
     for m in range(0, len(model.models) + 1, max(1, len(model.models) // 10)):
         print(f"{m:5d} | {rmse(model.predict(X_train, m), y_train):10.4f} | "

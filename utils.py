@@ -4,6 +4,8 @@ Datasets:
 car.csv   (classification): UCI Car Evaluation. 6 ordinal features; the
           target is turned into a binary label: acceptable (True) or not.
 house.csv (regression):     house prices with 12 features; target = price.
+--synthetic                 numpy-generated stand-ins for both (no download),
+                            see make_synthetic_classification / _regression.
 """
 from typing import Tuple
 
@@ -109,3 +111,50 @@ def report_regression(name: str, model, X_train, X_test, y_train, y_test) -> Non
     model.fit(X_train, y_train)
     print(f"{name:24s} train RMSE: {rmse(model.predict(X_train), y_train):.4f} | "
           f"test RMSE: {rmse(model.predict(X_test), y_test):.4f}")
+
+
+def make_synthetic_classification(n: int = 1728, seed: int = 0):
+    """Car-like stand-in: 6 ordinal features with 3-4 levels each, and a binary
+    label from a non-linear rule plus 10% label noise (so no model is perfect)."""
+    rng = np.random.RandomState(seed)
+    levels = [4, 4, 4, 3, 3, 3]
+    X = np.column_stack([rng.randint(1, k + 1, n) for k in levels]).astype(float)
+    score = (X[:, 5] - 1) * (X[:, 3] - 1) - 0.5 * (X[:, 0] + X[:, 1]) + 0.5 * X[:, 4]
+    y = score > 0.5
+    flip = rng.rand(n) < 0.10
+    return X, np.where(flip, ~y, y)
+
+
+def make_synthetic_regression(n: int = 545, seed: int = 0):
+    """House-like stand-in: Friedman #1 (Friedman, 1991) with 12 features of
+    which only the first 5 matter,
+        y = 10 sin(pi x1 x2) + 20 (x3 - 0.5)^2 + 10 x4 + 5 x5 + N(0, 1)."""
+    rng = np.random.RandomState(seed)
+    X = rng.rand(n, 12)
+    y = (10 * np.sin(np.pi * X[:, 0] * X[:, 1]) + 20 * (X[:, 2] - 0.5) ** 2
+         + 10 * X[:, 3] + 5 * X[:, 4] + rng.randn(n))
+    return X, y
+
+
+def _split(X, y, test_split=0.2, random_state=2024):
+    idx = np.random.RandomState(random_state).permutation(len(X))
+    n_test = int(len(X) * test_split)
+    return X[idx[n_test:]], X[idx[:n_test]], y[idx[n_test:]], y[idx[:n_test]]
+
+
+def get_data(args, task: str):
+    """X_train, X_test, y_train, y_test for task "clf" or "reg", from the CSV
+    files or (with args.synthetic) from generated data. Regression targets are
+    standardized with the training statistics."""
+    synthetic = getattr(args, "synthetic", False)
+    if task == "clf":
+        if synthetic:
+            return _split(*make_synthetic_classification())
+        return load_data(args.car_path)
+    if synthetic:
+        X_train, X_test, y_train, y_test = _split(*make_synthetic_regression())
+    else:
+        path = getattr(args, "house_path", None) or args.data_path
+        X_train, X_test, y_train, y_test = load_data(path, is_regression=True)
+    y_train, y_test = standardize_targets(y_train, y_test)
+    return X_train, X_test, y_train, y_test

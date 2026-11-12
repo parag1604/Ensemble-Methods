@@ -12,13 +12,13 @@ What is NEW compared to 03-04
   06 (AdaBoost) and 07 (gradient boosting) make the idea principled.
 
 Run: python 05_boosting.py --max_depth 3 --n_estimators 20   (house.csv)
+     add --synthetic to use generated data instead of the CSV file
 """
 import argparse
 
 import numpy as np
-from sklearn.tree import DecisionTreeRegressor
-
-from utils import load_data, standardize_targets, report_regression
+from tree import DecisionTreeRegressor
+from utils import get_data, report_regression
 from model import BoostingEnsemble as BoostingModel
 
 
@@ -28,13 +28,14 @@ def get_parser(description: str) -> argparse.ArgumentParser:
     parser.add_argument("--max_depth", type=int, default=3)
     parser.add_argument("--n_estimators", type=int, default=20)
     parser.add_argument("--seed", type=int, default=2024)
+    parser.add_argument("--synthetic", action="store_true",
+                        help="use generated data instead of house.csv")
     return parser
 
 
 def compare(model, args, name: str) -> None:
     """Single tree of the same depth vs. the boosted ensemble (standardized prices)."""
-    X_train, X_test, y_train, y_test = load_data(args.data_path, is_regression=True)
-    y_train, y_test = standardize_targets(y_train, y_test)
+    X_train, X_test, y_train, y_test = get_data(args, "reg")
     report_regression("Single tree", DecisionTreeRegressor(max_depth=args.max_depth),
                       X_train, X_test, y_train, y_test)
     report_regression(name, model, X_train, X_test, y_train, y_test)

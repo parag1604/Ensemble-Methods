@@ -1,13 +1,15 @@
 """Ensembles of decision trees: bagging / random forests and three kinds of boosting.
 
-The base learners are scikit-learn's decision trees (the from-scratch versions
-are in the Decision-Trees repository); here the focus is on how the trees are
-trained and combined.
+Everything is written from scratch in numpy, including the base learners: the
+CART trees in tree.py (adapted from the Decision-Trees repository). No library
+model is used inside any method; scikit-learn appears only in the explicit
+comparison script 08_sklearn_comparison.py.
 """
 from typing import Optional, Union
 
 import numpy as np
-from sklearn.tree import DecisionTreeClassifier, DecisionTreeRegressor
+
+from tree import DecisionTreeClassifier, DecisionTreeRegressor
 
 
 class RandomForest:
