@@ -27,7 +27,7 @@ pip install -r requirements.txt
 
 ## Data
 
-Scripts 01 and 02 need no data. The others use the same two small CSV files as the Decision-Trees repository, which are **included** under `./data` (pass other paths with `--car_path`, `--house_path` or `--data_path`):
+Scripts 03–08 use the same two small CSV files as the Decision-Trees repository, which are **included** under `./data` (pass other paths with `--car_path`, `--house_path` or `--data_path`):
 
 ```
 data/
