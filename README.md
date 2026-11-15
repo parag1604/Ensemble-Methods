@@ -8,7 +8,7 @@ Everything is implemented **from scratch** in numpy, including the base learners
 
 ## Theory
 
-Lecture notes for this topic are coming soon on https://parag1604.github.io/notes
+Please note that the theory corresponding to the codes is hosted on this [page](https://parag1604.github.io/notes/Machine-Learning/Decision-Trees-and-Ensembles) (the sections on majority voting, bagging, random forests and boosting).
 
 The trees in `tree.py` are adapted from the companion repository [Decision-Trees](https://github.com/parag1604/Decision-Trees), which explains how a tree is grown one threshold at a time. This version finds the same splits with a vectorised search (sort each feature once, then score every threshold with cumulative sums) and adds the options the ensembles need: `max_features` for random forests and `sample_weight` for boosting.
 
